@@ -3,6 +3,9 @@ package com.blogapplication.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -25,4 +28,6 @@ public class User {
     private int age;
     @Column
     private String gender;
+    //@OneToMany(mappedBy = "user",cascade =CascadeType.ALL,fetch = FetchType.LAZY)
+    //private List<Posts> posts=new ArrayList<>();
 }
