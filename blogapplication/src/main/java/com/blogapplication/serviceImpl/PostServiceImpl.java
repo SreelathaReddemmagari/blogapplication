@@ -8,9 +8,14 @@ import com.blogapplication.entities.Posts;
 import com.blogapplication.entities.User;
 import com.blogapplication.exception.ResourceNotFoundException;
 import com.blogapplication.payload.PostDto;
+import com.blogapplication.payload.PostResponse;
 import com.blogapplication.service.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -64,14 +69,28 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Posts> getAllPosts() {
-        return postRepo.findAll();
+    public PostResponse getAllPosts(Integer pageNumber,Integer pageSize,String sortBy) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize,Sort.by(sortBy));
+
+        Page<Posts> all=this.postRepo.findAll(pageable);
+        List<Posts> allPosts=all.getContent();
+        PostResponse postResponse=new PostResponse();
+
+       List<PostDto> postDtos=  allPosts.stream().map((post)->this.modelMapper.map(post,PostDto.class)).collect(Collectors.toList());
+        postResponse.setContent(postDtos);
+        postResponse.setPageNumber(all.getNumber());
+        postResponse.setPageSize(all.getSize());
+        postResponse.setTotalElements(all.getTotalElements());
+        postResponse.setTotalPages(all.getTotalPages());
+        postResponse.setLastPage(all.isLast());
+       //if we want to return all the data detais
+        return postResponse;
     }
 
     @Override
-    public List<Posts> getPostById(Integer postId) {
+    public PostDto getPostById(Integer postId) {
        Posts post=this.postRepo.findById(postId).orElseThrow(()->new ResourceNotFoundException("post","postId",postId));
-       return (List<Posts>) this.modelMapper.map(post, PostDto.class);
+       return  this.modelMapper.map(post, PostDto.class);
     }
 
     @Override

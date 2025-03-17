@@ -2,6 +2,7 @@ package com.blogapplication.controller;
 
 import com.blogapplication.payload.ApiResponse;
 import com.blogapplication.payload.PostDto;
+import com.blogapplication.payload.PostResponse;
 import com.blogapplication.service.PostService;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +39,12 @@ public class PostController {
         List<PostDto> postDtos = postService.getPostByCategory(categoryId);
         return new ResponseEntity<>(postDtos, HttpStatus.OK);
     }
-    @GetMapping("/posts")
+    @GetMapping("/postuser")
     public ResponseEntity<List<PostDto>> getPostsByUser(@PathVariable Integer userId){
         List<PostDto> posts=this.postService.getPostByUser(userId);
         return  new ResponseEntity<List<PostDto>>(posts,HttpStatus.OK);
     }
-    @DeleteMapping("/post/{postId}")
+    @DeleteMapping("post/{postId}")
     public ApiResponse deletePost(@PathVariable Integer postId ){
         this.postService.deletePost(postId);
         return new ApiResponse("post is successfully deleted",true);
@@ -51,7 +52,16 @@ public class PostController {
     @GetMapping("{postId}")
     public ResponseEntity<PostDto> getPostById(@PathVariable Integer postId) {
         PostDto postDto = (PostDto) postService.getPostById(postId);
-        return new ResponseEntity<>(postDto, HttpStatus.OK);
+        return new ResponseEntity<PostDto>(postDto, HttpStatus.OK);
+    }
+    @GetMapping("/posts")
+    public ResponseEntity<PostResponse> getAllPosts(
+            @RequestParam(defaultValue = "0") Integer pageNumber,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(value="sortBy",defaultValue="postId",required = false)String sortBy) {
+
+        PostResponse postResponse=postService.getAllPosts(pageNumber, pageSize,sortBy);
+        return new ResponseEntity<PostResponse>(postResponse, HttpStatus.OK);
     }
 
 }
