@@ -8,6 +8,7 @@ import com.blogapplication.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,9 +20,12 @@ public class UserServiceImpl implements UserService {
     private ModelMapper modelMapper;
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Override
     public UserDto createUser(UserDto userdto) {
         User map=this.modelMapper.map(userdto, User.class);
+        map.setPassword(passwordEncoder.encode(userdto.getPassword()));
         User addedUser=this.userRepo.save(map);
         return this.modelMapper.map(addedUser,UserDto.class);
     }
