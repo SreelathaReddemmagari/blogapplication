@@ -60,6 +60,7 @@ package com.blogapplication.controller;
 
 import com.blogapplication.payload.JwtRequest;
 import com.blogapplication.payload.JwtResponse;
+import com.blogapplication.payload.RefreshTokenRequest;
 import com.blogapplication.payload.UserDto;
 import com.blogapplication.security.JwtHelper;
 import com.blogapplication.service.UserService;
@@ -130,5 +131,23 @@ public class AuthController {
             return new ResponseEntity<>("Error creating user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<JwtResponse> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        String refreshToken = refreshTokenRequest.getRefreshToken();
+        String username = helper.getUsernameFromToken(refreshToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        if (helper.validateRefreshToken(refreshToken, userDetails)) {
+            String newToken = helper.generateToken(username);
+            return ResponseEntity.ok(JwtResponse.builder()
+                    .token(newToken)
+                    .username(username)
+                    .refreshToken(refreshToken) // send back the same refresh token
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
     }
 }

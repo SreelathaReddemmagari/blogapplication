@@ -40,7 +40,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers( "/auth/login").permitAll() // Login is typically POST
-                        .requestMatchers("/auth/create-user").permitAll() // Allow all methods for create-user
+                        .requestMatchers("/auth/create-user").permitAll()
+                        .requestMatchers("/auth/refresh-token").permitAll()// Allow all methods for create-user
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
